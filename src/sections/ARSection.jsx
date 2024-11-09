@@ -12,9 +12,9 @@ import { Environment } from "@react-three/drei";
 import Cube from "../components/Cube.jsx";
 import { XR, ARButton } from "@react-three/xr";
 import Stop from "../components/Stop";
-import Arrow from "../components/Arrow"
+import Arrow from "../components/Arrow";
 
-const MainSection = () => {
+const ARSection = () => {
   return (
     <>
       <ARButton />
@@ -29,4 +29,4 @@ const MainSection = () => {
   );
 };
 
-export default MainSection;
+export default ARSection;
