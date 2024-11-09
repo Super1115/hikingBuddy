@@ -8,7 +8,7 @@ export function Arrow(props) {
 
   const { nodes, materials } = useGLTF("/models/direction_arrow.glb");
   return (
-    <group {...props} ref = {arrowRef} dispose={null}>
+    <group {...props} dispose={null}>
       <group rotation={[-Math.PI / 2, 0, -0.015]}>
         <group rotation={[Math.PI / 2, 0, 0]} scale={0.01}>
           <mesh
