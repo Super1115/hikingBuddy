@@ -1,10 +1,7 @@
 import React, { useRef } from "react";
 import { useGLTF } from "@react-three/drei";
 
-export function Arrow(props) {
-
-  const arrowRef = useRef();
-  
+export function Arrow(props) {  
 
   const { nodes, materials } = useGLTF("/models/direction_arrow.glb");
   return (
