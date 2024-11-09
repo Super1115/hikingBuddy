@@ -480,4 +480,25 @@
     bottom: -100px;
     right: -100px;
   }
+  .overlay-bar input {
+    color: black;  /* Set the text color inside the input fields to black */
+  }
+  #canvas-container {
+    height: 100vh;
+    width: 100%;
+  }
+  .welcome {
+    width: 100%; /* Full width */
+    height: 200px; /* Set a fixed height */
+    padding: 20px; /* Add some padding to adjust spacing */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #f0f0f0; /* Optional: Set a background color */
+  }
+  .right-side {
+    float: right;
+    width: 300px; /* Adjust width as necessary */
+  }
   
