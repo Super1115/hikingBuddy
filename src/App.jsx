@@ -1,14 +1,13 @@
-
-import './App.css'
-import MainSection from "../src/sections/MainSection.jsx";
-
+import React from 'react';
+import './App.css';
+import Homepage from './components/Homepage';
 
 function App() {
   return (
-    <div>
-      <MainSection/>
+    <div className="App">
+      <Homepage />
     </div>
   );
 }
 
-export default App
+export default App;
