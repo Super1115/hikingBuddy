@@ -107,7 +107,105 @@ const Homepage = () => {
     
     geocoder.geocode({ address: startLocation }, (results, status) => {
       if (status === 'OK') {
-        const startLatLng = results[0].geometry.location;
+const setRoute = useCallback(async () => {
+  const startLocation = document.getElementById('start-location').value;
+  const endLocation = document.getElementById('end-location').value;
+
+  if (!startLocation || !endLocation) {
+    showToast('Please enter both start and end locations');
+    return;
+  }
+
+  const geocoder = new window.google.maps.Geocoder();
+  
+  try {
+    // Convert start location to coordinates
+    const startResults = await new Promise((resolve, reject) => {
+      geocoder.geocode({ address: startLocation }, (results, status) => {
+        if (status === 'OK') resolve(results);
+        else reject(new Error('Geocoding failed for start location'));
+      });
+    });
+
+    // Convert end location to coordinates
+    const endResults = await new Promise((resolve, reject) => {
+      geocoder.geocode({ address: endLocation }, (results, status) => {
+        if (status === 'OK') resolve(results);
+        else reject(new Error('Geocoding failed for end location'));
+      });
+    });
+
+    const startLatLng = [
+      startResults[0].geometry.location.lat(),
+      startResults[0].geometry.location.lng()
+    ];
+    
+    const endLatLng = [
+      endResults[0].geometry.location.lat(),
+      endResults[0].geometry.location.lng()
+    ];
+
+    // Clear previous markers and route
+    if (startMarker) startMarker.setMap(null);
+    if (endMarker) endMarker.setMap(null);
+    if (directionsRenderer) directionsRenderer.setDirections({ routes: [] });
+
+    // Set new markers
+    const newStartMarker = new window.google.maps.Marker({
+      position: { lat: startLatLng[0], lng: startLatLng[1] },
+      map: map,
+      title: 'Start'
+    });
+    
+    const newEndMarker = new window.google.maps.Marker({
+      position: { lat: endLatLng[0], lng: endLatLng[1] },
+      map: map,
+      title: 'End'
+    });
+
+    setStartMarker(newStartMarker);
+    setEndMarker(newEndMarker);
+
+    // Find the hiking route
+    const route = await findNearestRoute(startLatLng, endLatLng);
+    
+    if (!route) {
+      setIsRoutingError(true);
+      showToast('No suitable hiking route found');
+      return;
+    }
+
+    setRouteNodes(route);
+    
+    // Draw the route on the map
+    const path = route.map(node => ({
+      lat: node.coordinates[0],
+      lng: node.coordinates[1]
+    }));
+
+    const routePath = new window.google.maps.Polyline({
+      path: path,
+      geodesic: true,
+      strokeColor: '#FF0000',
+      strokeOpacity: 1.0,
+      strokeWeight: 2
+    });
+
+    routePath.setMap(map);
+
+    // Fit bounds to show the entire route
+    const bounds = new window.google.maps.LatLngBounds();
+    path.forEach(point => bounds.extend(point));
+    map.fitBounds(bounds);
+
+    showToast('Route found successfully!');
+
+  } catch (error) {
+    console.error('Error setting route:', error);
+    showToast('Error finding route. Please try again.');
+    setIsRoutingError(true);
+  }
+}, [map, startMarker, endMarker, directionsRenderer, showToast]);
         handleStartMarker(startLatLng);
 
         geocoder.geocode({ address: endLocation }, (results, status) => {
