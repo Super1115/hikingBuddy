@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css';
+import ARSection from "../sections/ARSection";
 
 // Component for Toast Notifications
 const Toast = ({ message, isVisible, onHide }) => (
@@ -317,6 +318,7 @@ const Homepage = () => {
           >
             <div className="ar-scene">
               {/* AR content will be added here */}
+               <ARSection/>
             </div>
             <LandscapeRecognition 
               isVisible={isARActive}
