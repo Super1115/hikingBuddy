@@ -2,7 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './styles.css';
+import Loading from './load/Loading';
 
+const LoadingScreen = () => {
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    // Simulate data fetching
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000); // adjust the time as needed
+  }, []);
+  
+  if (loading) {
+    return <Loading />;
+  }
+}
 // Component for Toast Notifications
 const Toast = ({ message, isVisible, onHide }) => (
   <motion.div 
