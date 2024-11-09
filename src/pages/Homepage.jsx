@@ -11,20 +11,16 @@ const route = {
   end: 0.0,
 };
 
-// Saving the input coordinates
-function setRoute() {
-  // Get the values from the input fields
+function locationUpdate(){
+  console.log("Hi");
   const startLocation = document.getElementById("start-location").value;
   const endLocation = document.getElementById("end-location").value;
-
   // You can store these values in variables
   console.log("Start Location:", startLocation);
   console.log("End Location:", endLocation);
 
-  // Modify the properties of the existing object
   route.start = parseFloat(startLocation); // Ensure the input is converted to a number
   route.end = parseFloat(endLocation);
-
   console.log("Updated Route:", route);
 }
 
@@ -305,7 +301,7 @@ const Homepage = () => {
             />
           </div>
           <div className="travel-mode"></div>
-          <button className="ar-button" onClick="setRoute()">
+          <button className="ar-button" onClick={locationUpdate}>
             Set Route
           </button>
         </motion.div>
