@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hiking Trail Finder</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+  <style>
+    
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      display: flex;
+      height: 100vh;
+    }
+
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+
+    .left-side {
+      width: 300px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      background-color: #ffffff;
+      transition: transform 0.3s ease;
+      position: relative;
+      z-index: 10;
+    }
+
+    .left-side.collapsed {
+      transform: translateX(-100%);
+    }
+
+
+    .tab-toggle {
+      position: absolute;
+      top: 10px;
+      left: 100%;
+      width: 30px;
+      height: 40px;
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tab-toggle:hover {
+      background-color: #45a049;
+    }
+
+    .right-side {
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+
+    header {
+      width: 100%;
+      background: #4CAF50;
+      color: white;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+    }
+
+    .search-bar input {
+      padding: 5px;
+      border: none;
+      border-radius: 4px;
+      width: 70%;
+    }
+
+    .settings {
+      position: relative;
+      display: inline-block;
+    }
+
+    .settings-icon {
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ddd;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      width: 120px;
+    }
+
+    .dropdown-content p {
+      margin: 0;
+      padding: 8px;
+      cursor: pointer;
+      color: black;
+    }
+
+    .dropdown-content p:hover {
+      background-color: #f1f1f1;
+    }
+
+    .welcome, .explore, .favorites {
+      margin-bottom: 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      background-color: white;
+      width: 100%;
+    }
+
+    .favorite-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .favorite-item {
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .overlay-bar {
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .overlay-bar input {
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 40%;
+    }
+
+    .overlay-bar button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .overlay-bar button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <div class="left-side">
+      <div class="tab-toggle" onclick="toggleSidebar()">☰</div>
+
+      <header>
+        <div class="search-bar">
+          <input type="text" placeholder="Type to search">
+        </div>
+        <div class="settings" onclick="toggleDropdown()">
+          <span class="settings-icon">⚙️</span>
+          <div class="dropdown-content">
+            <p>Profile</p>
+            <p>Favorites</p>
+            <p>Trail History</p>
+          </div>
+        </div>
+      </header>
+
+
+      <section class="welcome">
+        <h2>Welcome to <span id="city-name">Loading...</span></h2>
+        <p>Try to find something interesting!</p>
+      </section>
+
+
+      <section class="explore">
+        <h3>Explore Nearby Hiking Trails</h3>
+        <div id="trails-list"></div>
+      </section>
+
+      <section class="favorites">
+        <h3>Your Favorite Trails</h3>
+        <div class="favorite-grid" id="favorites-grid"></div>
+      </section>
+    </div>
+
+    <div class="right-side">
+      <div id="map" style="width: 100%; height: 100%;"></div>
+
+      <div class="overlay-bar">
+        <div>
+          <input type="text" id="start-location" placeholder="Start Location">
+          <input type="text" id="end-location" placeholder="End Location">
+        </div>
+        
+            <div class="travel-mode">
+                <button id="walking-btn" onclick="setTravelMode('WALKING')">
+                    <i class="material-icons">directions_walk</i>
+                    Walking
+                </button>
+                <button id="biking-btn" onclick="setTravelMode('BICYCLING')">
+                    <i class="material-icons">directions_bike</i>
+                    Biking
+                </button>
+            </div>
+        
+        <button onclick="setRoute()">Set Route</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let map, startMarker, endMarker, directionsService, directionsRenderer;
+
+    function initMap() {
+      const initialLocation = { lat: 37.7749, lng: -122.4194 }; // Example coordinates (San Francisco)
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: initialLocation,
+        zoom: 12,
+      });
+
+      // Initialize Directions Service and Renderer
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer();
+      directionsRenderer.setMap(map);
+
+      // Get user's location and set city name
+      getUserLocation();
+    }
+
+    // Set the route based on input locations
+    function setRoute() {
+      const startLocation = document.getElementById('start-location').value;
+      const endLocation = document.getElementById('end-location').value;
+
+      if (startLocation && endLocation) {
+        // Geocode the start and end locations to get lat/lng
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'address': startLocation }, function(results, status) {
+          if (status === 'OK') {
+            const startLatLng = results[0].geometry.location;
+            if (!startMarker) {
+              startMarker = new google.maps.Marker({
+                position: startLatLng,
+                map: map,
+                title: 'Start',
+              });
+            } else {
+              startMarker.setPosition(startLatLng);
+            }
+
+            // Geocode the end location
+            geocoder.geocode({ 'address': endLocation }, function(results, status) {
+              if (status === 'OK') {
+                const endLatLng = results[0].geometry.location;
+                if (!endMarker) {
+                  endMarker = new google.maps.Marker({
+                    position: endLatLng,
+                    map: map,
+                    title: 'End',
+                  });
+                } else {
+                  endMarker.setPosition(endLatLng);
+                }
+
+                // Calculate and display the route
+                const request = {
+                  origin: startLatLng,
+                  destination: endLatLng,
+                  travelMode: 'WALKING',
+                };
+                directionsService.route(request, function(result, status) {
+                  if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+    }
+
+    // Get user location and set city
+    function getUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          // Use reverse geocoding to get city name
+          const geocoder = new google.maps.Geocoder();
+          const latLng = new google.maps.LatLng(lat, lng);
+          geocoder.geocode({ 'location': latLng }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+              const city = results[0].address_components.find(comp => comp.types.includes('locality')).long_name;
+              document.getElementById('city-name').textContent = city;
+            }
+          });
+        });
+      }
+    }
+
+    // Toggle the sidebar visibility
+    function toggleSidebar() {
+      const leftSide = document.querySelector('.left-side');
+      leftSide.classList.toggle('collapsed');
+    }
+
+    // Toggle the dropdown menu for settings
+    function toggleDropdown() {
+      const dropdown = document.querySelector('.dropdown-content');
+      dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+    }
+  </script>
+</body>
+</html>
