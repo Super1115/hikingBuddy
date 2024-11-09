@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrated AR Hiking Trail Finder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap" async defer></script>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <!-- Keep original styles from animated-ar-hiking.html -->
+  <style>
+    /* Original styles from animated-ar-hiking.html */
+    :root {
+      --primary-color: #4CAF50;
+      --primary-dark: #45a049;
+      --accent-color: #FF6B6B;
+      --background-light: #f8f9fa;
+      --text-dark: #2c3e50;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* All original CSS styles from animated-ar-hiking.html remain the same */
+    /* Adding new overlay-bar styles from webSite.html */
+    .overlay-bar {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translate(-50%, 0);
+      width: 80%;
+      background-color: rgba(255, 255, 255, 0.95);
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      backdrop-filter: blur(10px);
+    }
+
+    .overlay-bar input {
+      padding: 12px;
+      margin: 5px;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      width: 40%;
+      transition: all 0.3s ease;
+    }
+
+    .overlay-bar input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+    }
+
+    .travel-mode {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .root {
+      --primary-color: #4CAF50;
+      --primary-dark: #45a049;
+      --accent-color: #FF6B6B;
+      --background-light: #f8f9fa;
+      --text-dark: #2c3e50;
+      --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.3s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background-light);
+      display: flex;
+      height: 100vh;
+      color: var(--text-dark);
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+    /* Enhanced Left Sidebar */
+    .left-side {
+      width: 300px;
+      padding: 20px;
+      background: white;
+      box-shadow: 2px 0 10px var(--shadow-color);
+      transform-origin: left;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .left-side.collapsed {
+      transform: translateX(-100%);
+    }
+
+    /* Animated Tab Toggle */
+    .tab-toggle {
+      position: absolute;
+      top: 20px;
+      left: 100%;
+      width: 40px;
+      height: 40px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 10px var(--shadow-color);
+      transform: translateX(20px);
+    }
+
+    .tab-toggle:hover {
+      background-color: var(--primary-dark);
+      transform: translateX(20px) scale(1.1);
+    }
+
+    /* Enhanced Header */
+    header {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+    }
+
+    /* Animated Search Bar */
+    .search-bar input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid transparent;
+      border-radius: 25px;
+      outline: none;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--accent-color);
+      box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* Enhanced Settings Dropdown */
+    .settings {
+      position: relative;
+      margin-top: 10px;
+    }
+
+    .settings-icon {
+      cursor: pointer;
+      font-size: 24px;
+      transition: transform 0.3s ease;
+    }
+
+    .settings-icon:hover {
+      transform: rotate(90deg);
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      overflow: hidden;
+      z-index: 1000;
+      min-width: 150px;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-content.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .dropdown-content p {
+      margin: 0;
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+
+    .dropdown-content p:hover {
+      background-color: var(--background-light);
+      color: var(--primary-color);
+    }
+
+    /* Enhanced Sections */
+    section {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      transform: translateY(0);
+      transition: transform 0.3s ease;
+    }
+
+    section:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Enhanced Favorite Grid */
+    .favorite-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      padding: 10px;
+    }
+
+    .favorite-item {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .favorite-item:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 6px 20px var(--shadow-color);
+    }
+
+    /* Enhanced AR Components */
+    .ar-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1000;
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .ar-overlay {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 25px;
+      padding: 15px 25px;
+      display: flex;
+      gap: 15px;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Enhanced Buttons */
+    .ar-button {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      transition: all 0.3s ease;
+    }
+
+    .ar-button:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: 0 6px 20px var(--shadow-color);
+    }
+
+    .ar-button:active {
+      transform: translateY(1px);
+    }
+
+    /* Enhanced Info Cards */
+    .landscape-recognition {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      max-width: 400px;
+      backdrop-filter: blur(10px);
+      display: none;
+      animation: slideUp 0.5s ease;
+    }
+
+    /* Loading Animation */
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translate(-50%, 50px);
+        opacity: 0;
+      }
+      to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(120%);
+      transition: transform 0.3s ease;
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    /* Enhanced Map Controls */
+    .map-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    .map-control-button {
+      background: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .map-control-button:hover {
+      transform: scale(1.1);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .left-side {
+        width: 100%;
+        position: fixed;
+        z-index: 1000;
+      }
+
+      .ar-overlay {
+        width: 90%;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="left-side">
+      <button class="tab-toggle animate__animated animate__fadeIn" onclick="toggleSidebar()">☰</button>
+      
+      <header class="animate__animated animate__slideInDown">
+        <div class="search-bar">
+          <input type="text" placeholder="Search trails..." class="animate__animated animate__fadeIn">
+        </div>
+        <div class="settings">
+          <span class="settings-icon">⚙️</span>
+          <div class="dropdown-content">
+            <p class="animate__animated animate__fadeIn">Profile</p>
+            <p class="animate__animated animate__fadeIn">Favorites</p>
+            <p class="animate__animated animate__fadeIn">Trail History</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="welcome animate__animated animate__fadeIn">
+        <h2>Welcome to <span id="city-name" class="animate__animated animate__fadeIn">Loading...</span></h2>
+        <p>Discover amazing trails near you!</p>
+      </section>
+
+      <section class="explore animate__animated animate__fadeIn">
+        <h3>Explore Nearby Trails</h3>
+        <div id="trails-list"></div>
+      </section>
+
+      <section class="favorites animate__animated animate__fadeIn">
+        <h3>Your Favorite Trails</h3>
+        <div class="favorite-grid" id="favorites-grid"></div>
+      </section>
+    </div>
+
+    <div class="right-side">
+      <div id="map"></div>
+      <div class="map-controls">
+        <button class="map-control-button animate__animated animate__fadeIn" onclick="startAR()">
+          <span>AR</span>
+        </button>
+        <button class="map-control-button animate__animated animate__fadeIn" onclick="toggleMapStyle()">
+          <span>🗺️</span>
+        </button>
+      </div>
+
+      <!-- Added from webSite.html -->
+      <div class="overlay-bar animate__animated animate__fadeIn">
+        <div>
+          <input type="text" id="start-location" placeholder="Start Location">
+          <input type="text" id="end-location" placeholder="End Location">
+        </div>
+        <div class="travel-mode">
+          <button class="ar-button" onclick="setTravelMode('WALKING')">
+            <i class="fas fa-walking"></i> Walking
+          </button>
+          <button class="ar-button" onclick="setTravelMode('BICYCLING')">
+            <i class="fas fa-bicycle"></i> Biking
+          </button>
+        </div>
+        <button class="ar-button" onclick="setRoute()">Set Route</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AR Container -->
+  <div class="ar-container" id="ar-view">
+    <a-scene>
+      <!-- AR content will be added here -->
+    </a-scene>
+    <div class="landscape-recognition">
+      <h3>Landscape Information</h3>
+      <p id="landscape-description"></p>
+      <div id="nature-tips"></div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="notification">
+    <span class="toast-icon">✨</span>
+    <span class="toast-message"></span>
+  </div>
+
+  <script>
+    let map, startMarker, endMarker, directionsService, directionsRenderer;
+
+    // Initialize map (from webSite.html)
+    function initMap() {
+      const initialLocation = { lat: 37.7749, lng: -122.4194 };
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: initialLocation,
+        zoom: 12,
+      });
+
+      directionsService = new google.maps.DirectionsService();
+      directionsRenderer = new google.maps.DirectionsRenderer();
+      directionsRenderer.setMap(map);
+
+      getUserLocation();
+    }
+
+    // Set route function (from webSite.html)
+    function setRoute() {
+      showLoading();
+      const startLocation = document.getElementById('start-location').value;
+      const endLocation = document.getElementById('end-location').value;
+
+      if (startLocation && endLocation) {
+        const geocoder = new google.maps.Geocoder();
+        geocoder.geocode({ 'address': startLocation }, function(results, status) {
+          if (status === 'OK') {
+            const startLatLng = results[0].geometry.location;
+            if (!startMarker) {
+              startMarker = new google.maps.Marker({
+                position: startLatLng,
+                map: map,
+                title: 'Start'
+              });
+            } else {
+              startMarker.setPosition(startLatLng);
+            }
+
+            geocoder.geocode({ 'address': endLocation }, function(results, status) {
+              if (status === 'OK') {
+                const endLatLng = results[0].geometry.location;
+                if (!endMarker) {
+                  endMarker = new google.maps.Marker({
+                    position: endLatLng,
+                    map: map,
+                    title: 'End'
+                  });
+                } else {
+                  endMarker.setPosition(endLatLng);
+                }
+
+                const request = {
+                  origin: startLatLng,
+                  destination: endLatLng,
+                  travelMode: 'WALKING'
+                };
+
+                directionsService.route(request, function(result, status) {
+                  if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                    hideLoading();
+                    showToast('Route set successfully!');
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
+    }
+
+    // Original functions from animated-ar-hiking.html
+    function showToast(message) {
+      const toast = document.getElementById('notification');
+      toast.querySelector('.toast-message').textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function toggleSidebar() {
+      const leftSide = document.querySelector('.left-side');
+      leftSide.classList.toggle('collapsed');
+      showToast(leftSide.classList.contains('collapsed') ? 'Sidebar collapsed' : 'Sidebar expanded');
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.querySelector('.dropdown-content');
+      dropdown.classList.toggle('active');
+    }
+
+    // Enhanced AR handlers
+    function startAR() {
+      const arContainer = document.getElementById('ar-view');
+      arContainer.style.display = 'block';
+      showToast('AR Mode activated');
+      
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+          .then(function(stream) {
+            updateARDistance();
+            identifyLandscape();
+          })
+          .catch(function(err) {
+            console.error("AR initialization failed:", err);
+            showToast('AR initialization failed');
+          });
+      }
+    }
+
+    // Additional functions from webSite.html
+    function getUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          const geocoder = new google.maps.Geocoder();
+          const latLng = new google.maps.LatLng(lat, lng);
+          geocoder.geocode({ 'location': latLng }, function(results, status) {
+            if (status === 'OK' && results[0]) {
+              const city = results[0].address_components.find(comp => 
+                comp.types.includes('locality')).long_name;
+              document.getElementById('city-name').textContent = city;
+            }
+          });
+        });
+      }
+    }
+
+    function setTravelMode(mode) {
+      showToast(`${mode} mode activated`);
+      // Implementation for setting travel mode
+    }
+
+    function identifyLandscape() {
+      const landscapes = [
+        "Mountain terrain with elevation of approximately 2000ft",
+        "Dense forest area with predominantly pine trees",
+        "Rocky cliff formation with visible sedimentary layers",
+        "Alpine meadow with diverse wildflowers"
+      ];
+      
+      const randomLandscape = landscapes[Math.floor(Math.random() * landscapes.length)];
+      document.getElementById('landscape-description').textContent = randomLandscape;
+      
+      const tips = generateNatureTips(randomLandscape);
+      document.getElementById('nature-tips').innerHTML = tips;
+    }
+
+    function generateNatureTips(landscape) {
+      const tipsByTerrain = {
+        "Mountain": [
+          "Watch for changing weather conditions",
+          "Stay hydrated at high altitudes",
+          "Take frequent breaks while ascending"
+        ],
+        "forest": [
+          "Look out for trail markers on trees",
+          "Keep noise levels down to observe wildlife",
+          "Stay on designated paths to protect vegetation"
+        ]
+      };
+
+      let relevantTips = [];
+      Object.keys(tipsByTerrain).forEach(terrain => {
+        if (landscape.toLowerCase().includes(terrain.toLowerCase())) {
+          relevantTips = tipsByTerrain[terrain];
+        }
+      });
+
+      return `
+        <h4>Trail Tips:</h4>
+        <ul>
+          ${relevantTips.map(tip => `<li>${tip}</li>`).join('')}
+        </ul>
+      `;
+    }
+
+    // Loading handlers
+    function showLoading() {
+      const loading = document.createElement('div');
+      loading.className = 'loading-spinner';
+      document.body.appendChild(loading);
+    }
+
+    function hideLoading() {
+      const loading = document.querySelector('.loading-spinner');
+      if (loading) {
+        loading.remove();
+      }
+    }
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('section').forEach(section => {
+        section.classList.add('animate__animated', 'animate__fadeIn');
+      });
+      
+      showToast('Welcome to AR Hiking Trail Finder!');
+    });
+  </script>
+</body>
+</html>
