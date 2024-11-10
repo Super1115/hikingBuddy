@@ -280,8 +280,6 @@ const Homepage = () => {
             className="map-control-button animate__animated animate__fadeIn"
             onClick={() => showToast("Map style updated")}
           >
-
-          </motion.button>
         </div>
 
         {/* Overlay Bar */}
