@@ -291,3 +291,14 @@ async function findNearestRoute(startCoord, endCoord) {
 //         console.log('No route found.');
 //     }
 // });
+
+findNearestRoute([1,1], [1,1]).then(result => {
+    if (result) {
+        console.log('Nodes with Index (JSON):', JSON.stringify(result, null, 2));
+        result.forEach(node=>{
+            nodecoord = node.coordinates // [lat,lon]
+        })
+    } else {
+        console.log('No route found.');
+    }
+});

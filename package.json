@@ -16,16 +16,20 @@
     "@react-three/fiber": "^8.17.10",
     "@react-three/xr": "^5.2.0",
     "@turf/turf": "^7.1.0",
+    "aframe": "^1.6.0",
+    "aframe-ar": "^0.2.1-a",
     "fastpriorityqueue": "^0.7.5",
     "framer-motion": "^11.11.11",
     "gsap": "^3.12.5",
     "http": "^0.0.1-security",
     "leva": "^0.9.35",
+    "node-polyfill-webpack-plugin": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-responsive": "^10.0.0",
     "react-router-dom": "^6.28.0",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "vite-plugin-node-polyfills": "^0.22.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
