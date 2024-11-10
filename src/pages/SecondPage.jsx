@@ -1,10 +1,12 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import ARSection from "../sections/ARSection";
 
 function SecondPage() {
-  
   const [goToHomePage, setgoToHomePage] = React.useState(false);
+  const location = useLocation();
+  const route = location.state?.route;
+
   if (goToHomePage) {
     return <Navigate to="/" />;
   }
@@ -23,13 +25,10 @@ function SecondPage() {
 
   return (
     <div>
-      <button 
-        onClick={() => setgoToHomePage(true)} 
-        style={buttonStyle}
-      >
+      <button onClick={() => setgoToHomePage(true)} style={buttonStyle}>
         Home Page
       </button>
-      <ARSection />
+      <ARSection route={route} />
     </div>
   );
 }
