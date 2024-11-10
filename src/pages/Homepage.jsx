@@ -276,10 +276,7 @@ const Homepage = () => {
           >
             <span>AR</span>
           </motion.button>
-          <motion.button
-            className="map-control-button animate__animated animate__fadeIn"
-            onClick={() => showToast("Map style updated")}
-          >
+          
         </div>
 
         {/* Overlay Bar */}
