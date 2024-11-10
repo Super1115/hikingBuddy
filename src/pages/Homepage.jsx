@@ -89,7 +89,6 @@ const Homepage = () => {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude: lat, longitude: lng } = position.coords;
         const geocoder = new window.google.maps.Geocoder();
-        const latLng = new window.google.maps.LatLng(lat, lng);
 
         geocoder.geocode({ location: latLng }, (results, status) => {
           if (status === "OK" && results[0]) {
@@ -110,8 +109,6 @@ const Homepage = () => {
 
     if (!startLocation || !endLocation) return;
 
-    const geocoder = new window.google.maps.Geocoder();
-
     geocoder.geocode({ address: startLocation }, (results, status) => {
       if (status === "OK") {
         const setRoute = useCallback(async () => {
@@ -123,7 +120,6 @@ const Homepage = () => {
             return;
           }
 
-          const geocoder = new window.google.maps.Geocoder();
 
           try {
             // Convert start location to coordinates
@@ -168,11 +164,6 @@ const Homepage = () => {
               title: "Start",
             });
 
-            const newEndMarker = new window.google.maps.Marker({
-              position: { lat: endLatLng[0], lng: endLatLng[1] },
-              map: map,
-              title: "End",
-            });
 
             setStartMarker(newStartMarker);
             setEndMarker(newEndMarker);
@@ -194,20 +185,8 @@ const Homepage = () => {
               lng: node.coordinates[1],
             }));
 
-            const routePath = new window.google.maps.Polyline({
-              path: path,
-              geodesic: true,
-              strokeColor: "#FF0000",
-              strokeOpacity: 1.0,
-              strokeWeight: 2,
-            });
 
             routePath.setMap(map);
-
-            // Fit bounds to show the entire route
-            const bounds = new window.google.maps.LatLngBounds();
-            path.forEach((point) => bounds.extend(point));
-            map.fitBounds(bounds);
 
             showToast("Route found successfully!");
           } catch (error) {
