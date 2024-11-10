@@ -274,15 +274,7 @@ const Homepage = () => {
               setGoToSecondPage(true);
             }}
           >
-            <span>AR</span>
-          </motion.button>
-          <motion.button
-            className="map-control-button animate__animated animate__fadeIn"
-            onClick={() => showToast("Map style updated")}
-          >
-            <span>🗺️</span>
-          </motion.button>
-        </div>
+
 
         {/* Overlay Bar */}
         <motion.div className="overlay-bar animate__animated animate__fadeIn">
