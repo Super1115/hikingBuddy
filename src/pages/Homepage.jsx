@@ -280,7 +280,7 @@ const Homepage = () => {
             className="map-control-button animate__animated animate__fadeIn"
             onClick={() => showToast("Map style updated")}
           >
-            <span>🗺️</span>
+
           </motion.button>
         </div>
 
