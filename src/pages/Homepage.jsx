@@ -68,22 +68,6 @@ const Homepage = () => {
   const [currentLandscape, setCurrentLandscape] = useState("");
   const [natureTips, setNatureTips] = useState("");
 
-  // Initialize map
-  useEffect(() => {
-    if (window.google) {
-      const initialLocation = { lat: 37.7749, lng: -122.4194 };
-      const newMap = new window.google.maps.Map(
-        document.getElementById("map"),
-        {
-          center: initialLocation,
-          zoom: 12,
-        }
-      );
-
-      const newDirectionsService = new window.google.maps.DirectionsService();
-      const newDirectionsRenderer = new window.google.maps.DirectionsRenderer();
-      newDirectionsRenderer.setMap(newMap);
-
       setMap(newMap);
       setDirectionsService(newDirectionsService);
       setDirectionsRenderer(newDirectionsRenderer);
