@@ -24,6 +24,9 @@ For hikers, especially those exploring new or dense trails, finding the right pa
 
 - **WebXR and ARCore**: Understanding the nuances of WebXR, which combines 3D spatial concepts with 2D interface interactions, required significant effort, as did mastering ARCore.
 - **Frontend-Backend Integration**: Ensuring smooth communication between the backend (where route calculations occur) and the frontend display was challenging, as page inconsistencies often interrupted functionality.
+- **XR Intergrate**: Creating a seamless XR environment without disrupting other website features is a major challenge. The XR component must integrate smoothly to enhance the user experience without causing any technical conflicts.
+- **Nodes Guide**: Determining direction based solely on nodes is complex. To guide users accurately, we need their real-time location to estimate which node they are closest to on the trail. On larger trails, displaying all node data at once can be difficult and may overwhelm the interface.
+- **Real-Time Terrain**: Providing accurate directions also requires real-time terrain analysis, which is challenging without visual assessments. An arrow might lead to a blocked or inaccessible path, as we lack real-time knowledge of trail conditions. Additionally, the Overpass API does not specify maximum or minimum distances between nodes, making it hard to adjust directions effectively.
 
 ---
 
