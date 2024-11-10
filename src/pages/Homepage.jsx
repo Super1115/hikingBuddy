@@ -275,8 +275,7 @@ const Homepage = () => {
             }}
           >
             <span>AR</span>
-          </motion.button>
-          
+         
         </div>
 
         {/* Overlay Bar */}
