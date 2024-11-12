@@ -20,6 +20,18 @@ For hikers, especially those exploring new or dense trails, finding the right pa
 
 ---
 
+### Installation
+```
+For Running Locally run the below in your terminal
+ 
+git clone https://github.com/Super1115/hikingBuddy.git
+cd hikingBuddy
+npm i
+npm run dev
+```
+
+---
+
 ## Challenges
 
 - **WebXR and ARCore**: Understanding the nuances of WebXR, which combines 3D spatial concepts with 2D interface interactions, required significant effort, as did mastering ARCore.
