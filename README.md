@@ -44,7 +44,7 @@ npm run dev
 
 ## Technologies Used
 
-- **WebXR** and **ARCore** for AR navigation.
+- **AR.js** for AR navigation.
 - **Overpass API** for real-time trail data.
 - **Visual Studio** for development and debugging.
 - **GitHub** for version control and collaboration.
